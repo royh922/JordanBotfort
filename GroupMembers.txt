@@ -1,2 +1,4 @@
 This file contains the names of all group members:
-Joshua Castro
+  1. Jui-Teng (Roy) Hsu
+  2. Long N
+  3. Joshua Castro
