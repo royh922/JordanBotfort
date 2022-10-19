@@ -12,7 +12,7 @@ public class Jordan extends ListenerAdapter
 {
     public static void main(String[] args) throws LoginException
     {
-        JDABuilder bot = JDABuilder.createDefault("MTAyNDY1OTY5NTg4MzAwNTk3Mg.GEo-ex.AXRENVn71LBl9P6IERFSstpvL9o6CLy_2gnBLs");
+        JDABuilder bot = JDABuilder.createDefault(TOKEN);
         bot.addEventListeners(new commands());
         bot.enableIntents(GatewayIntent.GUILD_MESSAGES);
         bot.enableIntents(GatewayIntent.DIRECT_MESSAGES);
