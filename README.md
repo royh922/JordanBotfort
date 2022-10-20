@@ -1,4 +1,4 @@
-# TradeBot
+# JordanBotfort
 A Discord bot that makes trading decisions by identifying "candlestick" patterns computationally
 
 ## How to run
