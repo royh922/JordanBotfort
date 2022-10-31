@@ -3,8 +3,8 @@ import io
 import pandas as pd
 from datetime import date
 
-today = "startDate=" + date.today().strftime("%Y-%m-%d")
-# today = "startDate=2022-10-13"
+# today = "startDate=" + date.today().strftime("%Y-%m-%d")
+today = "startDate=2022-10-27"
 print(today)
 ticker = input("Please specify ONE ticker to track: ") #decares stock ticker to track
 token = "&token=6c67dc599e26dbdd802b077e38f2d55a559a6ad9" #api token! KEEP SAFE!
@@ -112,5 +112,5 @@ total.close()
 log.close()
 
 
-fig = data.plot("time", "asset", figsize = (15, 12), title = ticker + "_" + date.today().strftime("%Y-%m-%d"))
+fig = data.plot("time", "asset", figsize = (8, 7), title = ticker + "_" + date.today().strftime("%Y-%m-%d"))
 fig.figure.savefig("figs/" + ticker + "_" + date.today().strftime("%Y-%m-%d") + ".png")
