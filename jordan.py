@@ -23,6 +23,7 @@ class Candlestick():
     def __init__(self,high,open,close,low):
         if (close-open < 0): self.bullish = False
         else: self.bullish = True
+        self.bought = False
         self.top = max(open, close)
         self.bottom = min(open, close)
         self.high = high
@@ -37,22 +38,27 @@ class Candlestick():
 #Defines buy pattern
 def buyCSPattern(prev2,prev1,new):
     #3 White Soldiers
-    if new.bullish and prev1.bullish and prev2.bullish: return True
+    if new.bullish and prev1.bullish and prev2.bullish: new.bought = True; return True
     #Morning Star
-    elif new.bullish and (not prev1.bullish) and (not prev2.bullish) and (prev2.body_ratio > .65) and (new.body_ratio > .75) and (prev2.bottom > prev1.mid) and (new.bottom > prev1.mid): return True
+    elif new.bullish and (not prev1.bullish) and (not prev2.bullish) and (prev2.body_ratio > .65) and (new.body_ratio > .75) and (prev2.bottom > prev1.mid) and (new.bottom > prev1.mid): new.bought = True; return True
     #Bullish Engulfing
-    elif (not prev1.bullish) and new.bullish and (prev1.bottom > new.bottom) and (prev1.top < new.top) and (new.body/prev1.body > 1): return True
+    elif (not prev1.bullish) and new.bullish and (prev1.bottom > new.bottom) and (prev1.top < new.top) and (new.body/prev1.body > 1): new.bought = True; return True
     #Piercing Line
-    elif (not prev1.bullish) and new.bullish and (new.mid < prev1.mid < new.top) and (prev1.body_ratio > .75) and (new.body_ratio > .75): return True
+    elif (not prev1.bullish) and new.bullish and (new.mid < prev1.mid < new.top) and (prev1.body_ratio > .75) and (new.body_ratio > .75): new.bought = True; return True
     #Hammer
-    elif (new.bottom_wick/new.top_wick > 3) and new.bullish and (new.bottom_wick/new.body > 2): return True
+    elif (new.bottom_wick/new.top_wick > 3) and new.bullish and (new.bottom_wick/new.body > 2): new.bought = True; return True
     #Inverse Hammer
-    elif (new.top_wick/new.bottom_wick > 3) and new.bullish and (new.top_wick/new.body > 2): return True 
-    #No matching buying pattern
+    elif (new.top_wick/new.bottom_wick > 3) and new.bullish and (new.top_wick/new.body > 2): new.bought = True; return True 
+    #No Buy Pattern
     else: return False
 
 #Defines sell pattern
 def sellCSPattern(prev2,prev1,new):
+    #Stop-loss order to sell if the stock value drops 10% from the original price bought at
+    if (prev1.bought) and (prev1.bullish) and (prev1.top*0.9 <= new.bottom): prev1.bought = False; return True
+    elif (prev1.bought) and (not prev1.bullish) and (prev1.bottom*0.9 <= new.bottom): prev1.bought = False; return True
+    elif (prev2.bought) and (prev2.bullish) and (prev2.top*0.9 <= new.bottom): prev2.bought = False; return True
+    elif (prev2.bought) and (not prev2.bullish) and (prev2.bottom*0.9 <= new.bottom): prev2.bought = False; return True
     #3 Black Crows
     if (not new.bullish) and (not prev1.bullish) and (not prev2.bullish): return True
     #Evening Star
