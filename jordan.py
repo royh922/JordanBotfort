@@ -55,10 +55,10 @@ def buyCSPattern(prev2,prev1,new):
 #Defines sell pattern
 def sellCSPattern(prev2,prev1,new):
     #Stop-loss order to sell if the stock value drops 10% from the original price bought at
-    if (prev1.bought) and (prev1.bullish) and (prev1.top*0.9 <= new.bottom): prev1.bought = False; return True
-    elif (prev1.bought) and (not prev1.bullish) and (prev1.bottom*0.9 <= new.bottom): prev1.bought = False; return True
-    elif (prev2.bought) and (prev2.bullish) and (prev2.top*0.9 <= new.bottom): prev2.bought = False; return True
-    elif (prev2.bought) and (not prev2.bullish) and (prev2.bottom*0.9 <= new.bottom): prev2.bought = False; return True
+    if (prev1.bought) and (prev1.bullish) and (prev1.top*0.9 >= new.bottom): prev1.bought = False; return True
+    elif (prev1.bought) and (not prev1.bullish) and (prev1.bottom*0.9 >= new.bottom): prev1.bought = False; return True
+    elif (prev2.bought) and (prev2.bullish) and (prev2.top*0.9 >= new.bottom): prev2.bought = False; return True
+    elif (prev2.bought) and (not prev2.bullish) and (prev2.bottom*0.9 >= new.bottom): prev2.bought = False; return True
     #3 Black Crows
     if (not new.bullish) and (not prev1.bullish) and (not prev2.bullish): return True
     #Evening Star
