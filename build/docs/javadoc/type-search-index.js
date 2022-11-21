@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"me.JordanBotfort.bot","l":"Commands"},{"p":"me.JordanBotfort.bot","l":"Jordan"}];updateSearchResults();
