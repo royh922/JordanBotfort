@@ -15,8 +15,6 @@ public class Jordan extends ListenerAdapter
         bot.addEventListeners(new Commands());
         bot.enableIntents(GatewayIntent.DIRECT_MESSAGES);
         bot.build();
-        
-
     }
 }
 

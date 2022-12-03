@@ -13,12 +13,13 @@ import javax.annotation.Nonnull;
 
 import java.util.Arrays;
 import java.util.HashSet;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
+import java.lang.ProcessBuilder;
+
 public class Commands extends ListenerAdapter {
-    final String tickers[] = {"CCL","AMZN","AMD","NVDA","AAPL","TSLA","BBD","ITUB","GRAB","DLO","F","NIO","SOFI","XPEV","ABEV","TGT","DNA","INTC","PBR","META","T","NU","SNAP","LU","VALE","AMC","PLTR","AAL","BABA","UBER","WBD","PINS","SWN","CSCO","GOOGL","VTRS","GOOG","TLRY","MSFT","COIN","TSM","BAC","ZI","LCID","MU","M","NOK","U","LUMN","TME","CMCSA","PARA","C","AFRM","SHOP","RIG","GSAT","SIRI","LYFT","RLX","DKNG","APE","PBR-A","NCLH","VZ","PLUG","IQ","HPE","WFC","KGC","KMI","ASX","UMC","PTON","ET","BILI","XOM","VOD","TEVA","SLB","AGNC","HOOD","GGB","RBLX","OXY","AUY","FCX","CTRA","AQN","AMAT","MRVL","PFE","GM","BTG","IBN","TJX","SQ","MPW","PCG","GOLD","DIS","SE","WMT","HBI","HBAN","KO","YMM","ZIM","CPG","ELAN","PYPL","BMY","RIVN","CSX","CLF","USB","MO","CPNG","CS","KEY","QCOM","UAA","ERIC","HPQ","BEKE","NTRA","MAT","XP","DVN","ONON","GFI","BP","MRK","GPS","FTCH","MRO","NEE","JBLU","MQ","AMCR","MDT","PDD","NFLX","CIG","CVX","JPM","ON","CHPT","STNE","LI","AA","QS","LOW","X","TXN","COP","ABBV","DAL","BBWI","KDP","STLA","TFC","PAYO","JWN","TCOM","DBX","CVS","FTI","JD","BRFS","FIS","RUN","EPD","PATH","CRM","TOST","GILD","SCHW","OSH","NYCB","ING","V","PR","RF","RCM","ORCL","MCHP","NKE","PANW","HAL","AEO","WOLF","BAX","AVTR","BKR","KHC","AR","ROKU","IVZ","ALLY","AG","RKLB","LAZR","HL","JNJ","NLY","CTSH","TTD","VICI","NWL","CX","AAP","SBUX","SO","VRT","GSK","WDC","EBAY","BSX","HD","EW","NEM","APA","SYF","TCEHY","DASH","PG"};
+    final String tickers[] = {"BTCUSD","CCL","AMZN","AMD","NVDA","AAPL","TSLA","BBD","ITUB","GRAB","DLO","F","NIO","SOFI","XPEV","ABEV","TGT","DNA","INTC","PBR","META","T","NU","SNAP","LU","VALE","AMC","PLTR","AAL","BABA","UBER","WBD","PINS","SWN","CSCO","GOOGL","VTRS","GOOG","TLRY","MSFT","COIN","TSM","BAC","ZI","LCID","MU","M","NOK","U","LUMN","TME","CMCSA","PARA","C","AFRM","SHOP","RIG","GSAT","SIRI","LYFT","RLX","DKNG","APE","PBR-A","NCLH","VZ","PLUG","IQ","HPE","WFC","KGC","KMI","ASX","UMC","PTON","ET","BILI","XOM","VOD","TEVA","SLB","AGNC","HOOD","GGB","RBLX","OXY","AUY","FCX","CTRA","AQN","AMAT","MRVL","PFE","GM","BTG","IBN","TJX","SQ","MPW","PCG","GOLD","DIS","SE","WMT","HBI","HBAN","KO","YMM","ZIM","CPG","ELAN","PYPL","BMY","RIVN","CSX","CLF","USB","MO","CPNG","CS","KEY","QCOM","UAA","ERIC","HPQ","BEKE","NTRA","MAT","XP","DVN","ONON","GFI","BP","MRK","GPS","FTCH","MRO","NEE","JBLU","MQ","AMCR","MDT","PDD","NFLX","CIG","CVX","JPM","ON","CHPT","STNE","LI","AA","QS","LOW","X","TXN","COP","ABBV","DAL","BBWI","KDP","STLA","TFC","PAYO","JWN","TCOM","DBX","CVS","FTI","JD","BRFS","FIS","RUN","EPD","PATH","CRM","TOST","GILD","SCHW","OSH","NYCB","ING","V","PR","RF","RCM","ORCL","MCHP","NKE","PANW","HAL","AEO","WOLF","BAX","AVTR","BKR","KHC","AR","ROKU","IVZ","ALLY","AG","RKLB","LAZR","HL","JNJ","NLY","CTSH","TTD","VICI","NWL","CX","AAP","SBUX","SO","VRT","GSK","WDC","EBAY","BSX","HD","EW","NEM","APA","SYF","TCEHY","DASH","PG"};
     final private HashSet<String> tickers_set = new HashSet<>(Arrays.asList(tickers));
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent e) {
@@ -34,19 +35,44 @@ public class Commands extends ListenerAdapter {
             new File("./" + User).mkdirs();
 
             if(opt.equals("!run")){
+                File currentTrack = new File("./" + User + "/track.txt");
+                String python = "C:/Python310/python.exe";
+                // String jordan = "jordan.py";
+                String jordan = "test.py";
+                String plot = "plot.py";
                 Timer timer = new Timer();
                 timer.scheduleAtFixedRate(new TimerTask(){
                     @Override
                     public void run() {
-                        //TODO call jordan.py script
-                        System.out.println("Hey");
+                        String s1[] = null;
+                        try {
+                            if(currentTrack.exists()){
+                                Scanner scan = new Scanner(currentTrack);
+                                if(scan.hasNext()) s1 = scan.nextLine().split("[,]");
+                                scan.close();
+                            }
+                            if(s1 == null){
+                                e.getChannel().sendMessage("Please add a valid stock ticker to track! ex. amzn, tsla").queue();
+                                return;
+                            }
+                            for(String s : s1){
+                                ProcessBuilder pb = new ProcessBuilder(python, jordan, User, s);
+                                pb.redirectErrorStream(true);
+                                // pb.inheritIO();
+                                Process p = pb.start();
+                            }
+                            ProcessBuilder pb = new ProcessBuilder(python, plot, User);
+                            pb.redirectErrorStream(true);
+                            // pb.inheritIO();
+                            Process p = pb.start();
+                        } catch (IOException ex) {ex.printStackTrace();}
                     }   
-                }, 0, 5*1000);
+                }, 0, 60*1000);
             }
             
             else if (opt.equals("!track")) {
                 e.getMessage().addReaction("U+1F4B0").queue();
-                if (m.split(" ").length > 1 && tickers_set.contains(m.split(" ")[1].toUpperCase())) {
+                if (m.split(" ").length > 0 && tickers_set.contains(m.split(" ")[1].toUpperCase())) {
                     String stock = m.split(" ")[1].toUpperCase();
                     e.getChannel().sendMessage("Tracking " + stock).queue();
                     File currentTrack = new File("./" + User + "/track.txt");
@@ -54,7 +80,7 @@ public class Commands extends ListenerAdapter {
                         String s1[] = {};
                         if(currentTrack.exists()){
                             Scanner scan = new Scanner(currentTrack);
-                            s1 = scan.nextLine().split("[,]");
+                            if(scan.hasNext()) s1 = scan.nextLine().split("[,]");
                             scan.close();
                         }
                         HashSet<String> set = new HashSet<>(Arrays.asList(s1));
@@ -92,6 +118,7 @@ public class Commands extends ListenerAdapter {
                     Scanner scan = new Scanner(currentTrack);
                     if (scan.hasNext())
                         e.getChannel().sendMessage(User + ": " + scan.nextLine()).queue();
+                    else e.getChannel().sendMessage("Not tracking any stocks. Use !track to add stocks").queue(); 
                     scan.close();
                 } catch (FileNotFoundException e1) {
                     e.getChannel().sendMessage("Not tracking any stocks. Use !track to add stocks").queue();
