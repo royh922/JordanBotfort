@@ -4,34 +4,19 @@ import io
 import pandas as pd
 from pandas import json_normalize 
 import sys
-from datetime import date
+from datetime import datetime
 import json
+import yfinance as yf
+
 
 #specifies user and ticker from command line parameters
 user = sys.argv[1]
 # user = "roy_h92"
 
-ticker = sys.argv[2]
-# ticker = input("Please specify ONE ticker to track: ") #decares stock ticker to track
+tickers = sys.argv[2]
+# tickers = "AAPL,MSFT,AMZN"
 
-today = "startDate=" + date.today().strftime("%Y-%m-%d")
-# today = "startDate=2022-11-18"
-
-token = "&token=6c67dc599e26dbdd802b077e38f2d55a559a6ad9" #api token! KEEP SAFE!
-
-requestResponse = requests.get("https://api.tiingo.com/iex/" + ticker + "/prices?" + today + "&resampleFreq=1min" + token)
-# requestResponse = requests.get("https://api.tiingo.com/iex/?tickers=aapl" + token)
-
-data = json_normalize(requestResponse.json()) #put pulled data into a pandas dataframe object
-
-
-data["date"] = data["date"].str.split(".")
-data["date"] = data["date"].str[0]
-data["date"] = data["date"].str.split("T")
-data["date"] = data["date"].str[0] + " " + data["date"].str[1]
-data["date"] = data["date"].str.slice(stop = -3)
-data.rename(columns={"date" : "time"}, inplace = True)
-# data
+data = yf.download(tickers, period= "1d", interval = "1m", ignore_tz=True, actions=False, group_by="ticker")
 
 # %%
 # Class to create Candlestick object
@@ -95,61 +80,54 @@ def sellCSPattern(prev2,prev1,new):
     else: return False
 
 # %%
-#creates candle stick from data
-length = len(data) - 1
-prev2 = Candlestick(data.iloc[length - 2]["high"], data.iloc[length - 2]["open"], data.iloc[length - 2]["close"], data.iloc[length - 2]["low"])
-prev1 = Candlestick(data.iloc[length - 1]["high"], data.iloc[length - 1]["open"], data.iloc[length - 1]["close"], data.iloc[length - 1]["low"])
-curr = Candlestick(data.iloc[length]["high"], data.iloc[length]["open"], data.iloc[length]["close"], data.iloc[length]["low"])
+tickers = tickers.split(",")
+unit = 10 #unit of stock to buy (in dollars)
 
-# %%
 assets = dict()
-shares = []
 try:
     with open("./" + user + "/assets.json") as json_file:
         assets = json.load(json_file)
-    shares = assets.get(ticker, [])
 except FileNotFoundError:
     assets["fund"] = 100.0
-    
-
-unit = 10 #unit of stock to buy (in dollars)
-
-# %%
+assets["stocks"] = 0.0
+now = datetime.now().strftime('%m/%d-%H:%M')
 log = open("./" + user + "/logs.txt", "a")
 
-if(shares and sellCSPattern(prev2, prev1, curr)):
-    for x in shares:
-        if x < curr.low:
-            assets["fund"] += unit * curr.low / x
-            log.write(data.iloc[len(data) - 1]["time"] + " Available funds: " + str(assets["fund"]) + "\n")
-            log.write(f"Sold {x:.2f}\n")
-            shares.remove(x)
-            log.write("Current shares: " + " ".join(str(i) for i in shares) + "\n")
-            log.write("\n")
+for ticker in tickers:
+    shares = []
+    shares = assets.get(ticker, [])
+    #creates candle stick from data
+    length = len(data) - 1
+    prev2 = Candlestick(data.iloc[length - 2]["High"], data.iloc[length - 2]["Open"], data.iloc[length - 2]["Close"], data.iloc[length - 2]["Low"])
+    prev1 = Candlestick(data.iloc[length - 1]["High"], data.iloc[length - 1]["Open"], data.iloc[length - 1]["Close"], data.iloc[length - 1]["Low"])
+    curr = Candlestick(data.iloc[length]["High"], data.iloc[length]["Open"], data.iloc[length]["Close"], data.iloc[length]["Low"])
 
-if(assets["fund"] > unit and buyCSPattern(prev2, prev1, curr)):
-    assets["fund"] -= unit
-    log.write(data.iloc[len(data) - 1]["time"] + " Available funds: " + str(assets["fund"]) + "\n")
-    log.write("Buying: " + ticker + "at " + str(curr.high) +  "\n")
-    shares.append(curr.high)
-    log.write("Current shares: " + " ".join(str(i) for i in shares) + "\n")
-    log.write("\n")
+    if(shares and sellCSPattern(prev2, prev1, curr)):
+        for x in shares:
+            if x < curr.low:
+                assets["fund"] += unit * curr.low / x
+                log.write(now + " Available funds: " + str(assets["fund"]) + "\n")
+                log.write(f"Sold {x:.2f}\n")
+                shares.remove(x)
+                log.write("Current shares: " + " ".join(str(i) for i in shares) + "\n")
+                log.write("\n")
 
-#updates the shares list in assets dictionary
-assets[ticker] = shares
+    if(assets["fund"] > unit and buyCSPattern(prev2, prev1, curr)):
+        assets["fund"] -= unit
+        log.write(now + " Available funds: " + str(assets["fund"]) + "\n")
+        log.write("Buying: " + ticker + " at " + str(curr.high) +  "\n")
+        shares.append(curr.high)
+        log.write("Current shares: " + " ".join(str(i) for i in shares) + "\n")
+        log.write("\n")
 
-# total = assets["fund"]
-total = assets.get("stocks", 0)
-for x in shares: total += 10 * curr.low/x
-assets["stocks"] = total
+    #updates the shares list in assets dictionary
+    assets[ticker] = shares
 
-# status = open("./" + user + "/status.txt", "a")
+    # total = assets["fund"]
+    total = assets.get("stocks", 0)
+    for x in shares: total += 10 * curr.low/x
+    assets["stocks"] = total
 
-#updates current asset with all owned stocks
-
-# status.write(data.iloc[len(data) - 1]["time"] + " %.2f\n" %total)
-
-# status.close()
 log.close()
 
 with open("./" + user + "/assets.json", "w") as json_file:
