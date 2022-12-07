@@ -36,7 +36,7 @@ public class Commands extends ListenerAdapter {
 
             if(opt.equals("!run")){
                 File currentTrack = new File("./" + User + "/track.txt");
-                String python = "C:/Python310/python.exe";
+                String python = "python";
                 String jordan = "jordan.py";
                 // String jordan = "test.py";
                 String plot = "plot.py";
@@ -130,10 +130,8 @@ public class Commands extends ListenerAdapter {
             } 
 
             else if (opt.equals("!log")) {
-                String num = m.substring(m.indexOf('!') + 4);
-                num = num.substring(0, num.indexOf("("));
-                e.getChannel().sendMessage("Displaying the last" + num + " transactions").queue();
-                File log = new File("./" + User + "/" + "log.txt");
+                e.getChannel().sendMessage("Displaying the last transactions").queue();
+                File log = new File("./" + User + "/" + "logs.txt");
                 try {
                     Scanner scan = new Scanner(log);
                     while(scan.hasNext()) e.getChannel().sendMessage(scan.nextLine()).queue(); 

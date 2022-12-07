@@ -16,7 +16,7 @@ user = sys.argv[1]
 tickers = sys.argv[2]
 # tickers = "AAPL,MSFT,AMZN"
 
-data = yf.download(tickers, period= "1d", interval = "1m", ignore_tz=True, actions=False, group_by="ticker")
+Data = yf.download(tickers, period= "1d", interval = "1m", actions=False, group_by="ticker")
 
 # %%
 # Class to create Candlestick object
@@ -74,7 +74,7 @@ def sellCSPattern(prev2,prev1,new):
     elif (new.bottom_wick/new.top_wick > 3) and (not new.bullish) and (new.bottom_wick/new.body > 2): return True
 
     #Shooting Star
-    elif (new.top_wick/new.bottom_wick > 3) and (new.bullish == False) and (new.top_wick/new.body > 2): return True
+    elif (new.top_wick/new.bottom_wick > 3) and (not new.bullish) and (new.top_wick/new.body > 2): return True
     
     #No Sell Pattern
     else: return False
@@ -94,31 +94,30 @@ now = datetime.now().strftime('%m/%d-%H:%M')
 log = open("./" + user + "/logs.txt", "a")
 
 for ticker in tickers:
+    data = Data[ticker]
+    data = data.dropna()
+    # print(data)
     shares = []
     shares = assets.get(ticker, [])
     #creates candle stick from data
-    length = len(data) - 1
-    prev2 = Candlestick(data.iloc[length - 2]["High"], data.iloc[length - 2]["Open"], data.iloc[length - 2]["Close"], data.iloc[length - 2]["Low"])
-    prev1 = Candlestick(data.iloc[length - 1]["High"], data.iloc[length - 1]["Open"], data.iloc[length - 1]["Close"], data.iloc[length - 1]["Low"])
-    curr = Candlestick(data.iloc[length]["High"], data.iloc[length]["Open"], data.iloc[length]["Close"], data.iloc[length]["Low"])
+    # length = len(data) - 1
+    prev2 = Candlestick(data.iloc[-3]["High"], data.iloc[-3]["Open"], data.iloc[-3]["Close"], data.iloc[-3]["Low"])
+    prev1 = Candlestick(data.iloc[-2]["High"], data.iloc[-2]["Open"], data.iloc[-2]["Close"], data.iloc[-2]["Low"])
+    curr = Candlestick(data.iloc[-1]["High"], data.iloc[-1]["Open"], data.iloc[-1]["Close"], data.iloc[-1]["Low"])
+    # print(prev2.high)
+
 
     if(shares and sellCSPattern(prev2, prev1, curr)):
         for x in shares:
             if x < curr.low:
                 assets["fund"] += unit * curr.low / x
-                log.write(now + " Available funds: " + str(assets["fund"]) + "\n")
-                log.write(f"Sold {x:.2f}\n")
+                log.write(f"Sold {ticker} at {x:.2f}\n")
                 shares.remove(x)
-                log.write("Current shares: " + " ".join(str(i) for i in shares) + "\n")
-                log.write("\n")
 
     if(assets["fund"] > unit and buyCSPattern(prev2, prev1, curr)):
         assets["fund"] -= unit
-        log.write(now + " Available funds: " + str(assets["fund"]) + "\n")
-        log.write("Buying: " + ticker + " at " + str(curr.high) +  "\n")
+        log.write("Buying " + ticker + " at " + str(curr.high) +  "\n")
         shares.append(curr.high)
-        log.write("Current shares: " + " ".join(str(i) for i in shares) + "\n")
-        log.write("\n")
 
     #updates the shares list in assets dictionary
     assets[ticker] = shares
