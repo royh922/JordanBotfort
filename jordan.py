@@ -93,8 +93,10 @@ assets["stocks"] = 0.0
 now = datetime.now().strftime('%m/%d-%H:%M')
 log = open("./" + user + "/logs.txt", "a")
 
+
 for ticker in tickers:
-    data = Data[ticker]
+    if len(tickers) == 1: data = Data
+    else: data = Data[ticker]
     data = data.dropna()
     # print(data)
     shares = []
@@ -111,7 +113,7 @@ for ticker in tickers:
         for x in shares:
             if x < curr.low:
                 assets["fund"] += unit * curr.low / x
-                log.write(f"Sold {ticker} at {x:.2f}\n")
+                log.write(f"Sold {ticker:.s} at {x:.2f}\n")
                 shares.remove(x)
 
     if(assets["fund"] > unit and buyCSPattern(prev2, prev1, curr)):
@@ -131,6 +133,3 @@ log.close()
 
 with open("./" + user + "/assets.json", "w") as json_file:
     json.dump(assets, json_file)
-    
-
-
