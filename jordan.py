@@ -91,7 +91,8 @@ except FileNotFoundError:
     assets["fund"] = 100.0
 assets["stocks"] = 0.0
 now = datetime.now().strftime('%m/%d-%H:%M')
-log = open("./" + user + "/logs.txt", "a")
+log = open("./" + user + "/logs.txt", "r+")
+currLog = log.read()
 
 for ticker in tickers:
     data = Data[ticker]
@@ -107,16 +108,18 @@ for ticker in tickers:
     # print(prev2.high)
 
 
-    if(shares and sellCSPattern(prev2, prev1, curr)):
+    if(shares):
         for x in shares:
-            if x < curr.low:
+            if (x < curr.low and sellCSPattern(prev2, prev1, curr) or (x * 0.98) < curr.low):
                 assets["fund"] += unit * curr.low / x
-                log.write(f"Sold {ticker} at {x:.2f}\n")
+                currLog = f"Sold {ticker} at {x:.2f}\n" + currLog
+                # log.write(f"Sold {ticker} at {x:.2f}\n")
                 shares.remove(x)
 
     if(assets["fund"] > unit and buyCSPattern(prev2, prev1, curr)):
         assets["fund"] -= unit
-        log.write("Buying " + ticker + " at " + str(curr.high) +  "\n")
+        # log.write("Buying " + ticker + " at " + str(curr.high) +  "\n")
+        currLog = "Buying " + ticker + " at " + str(curr.high) +  "\n" + currLog
         shares.append(curr.high)
 
     #updates the shares list in assets dictionary
@@ -126,7 +129,7 @@ for ticker in tickers:
     total = assets.get("stocks", 0)
     for x in shares: total += 10 * curr.low/x
     assets["stocks"] = total
-
+log.write(currLog)
 log.close()
 
 with open("./" + user + "/assets.json", "w") as json_file:
