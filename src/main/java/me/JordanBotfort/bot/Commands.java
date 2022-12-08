@@ -130,16 +130,20 @@ public class Commands extends ListenerAdapter {
             } 
 
             else if (opt.equals("!log")) {
-                e.getChannel().sendMessage("Displaying the last transactions").queue();
+                int lines = 0;
+                if (m.split(" ").length > 1) {
+                    lines = Integer.parseInt(m.split(" ")[1]);
+                }
+                else lines = 5;
+                e.getChannel().sendMessage(String.format("Displaying the last %d transactions", lines)).queue();
                 File log = new File("./" + User + "/" + "logs.txt");
                 try {
                     Scanner scan = new Scanner(log);
-                    while(scan.hasNext()) e.getChannel().sendMessage(scan.nextLine()).queue(); 
+                    while(scan.hasNext() && (lines-- > 0)) e.getChannel().sendMessage(scan.nextLine()).queue(); 
                     scan.close();
                 } catch (FileNotFoundException e1) {
                     e.getChannel().sendMessage("Not trading. Use !track to add stocks and !run to start trading!").queue();
                 }
-
             }
 
             else if(opt.equals("!help")){

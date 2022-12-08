@@ -101,7 +101,6 @@ for ticker in tickers:
     shares = []
     shares = assets.get(ticker, [])
     #creates candle stick from data
-    # length = len(data) - 1
     prev2 = Candlestick(data.iloc[-3]["High"], data.iloc[-3]["Open"], data.iloc[-3]["Close"], data.iloc[-3]["Low"])
     prev1 = Candlestick(data.iloc[-2]["High"], data.iloc[-2]["Open"], data.iloc[-2]["Close"], data.iloc[-2]["Low"])
     curr = Candlestick(data.iloc[-1]["High"], data.iloc[-1]["Open"], data.iloc[-1]["Close"], data.iloc[-1]["Low"])
