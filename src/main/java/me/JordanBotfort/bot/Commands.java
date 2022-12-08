@@ -19,7 +19,7 @@ import java.util.TimerTask;
 import java.lang.ProcessBuilder;
 
 public class Commands extends ListenerAdapter {
-    final String tickers[] = {"BTCUSD","CCL","AMZN","AMD","NVDA","AAPL","TSLA","BBD","ITUB","GRAB","DLO","F","NIO","SOFI","XPEV","ABEV","TGT","DNA","INTC","PBR","META","T","NU","SNAP","LU","VALE","AMC","PLTR","AAL","BABA","UBER","WBD","PINS","SWN","CSCO","GOOGL","VTRS","GOOG","TLRY","MSFT","COIN","TSM","BAC","ZI","LCID","MU","M","NOK","U","LUMN","TME","CMCSA","PARA","C","AFRM","SHOP","RIG","GSAT","SIRI","LYFT","RLX","DKNG","APE","PBR-A","NCLH","VZ","PLUG","IQ","HPE","WFC","KGC","KMI","ASX","UMC","PTON","ET","BILI","XOM","VOD","TEVA","SLB","AGNC","HOOD","GGB","RBLX","OXY","AUY","FCX","CTRA","AQN","AMAT","MRVL","PFE","GM","BTG","IBN","TJX","SQ","MPW","PCG","GOLD","DIS","SE","WMT","HBI","HBAN","KO","YMM","ZIM","CPG","ELAN","PYPL","BMY","RIVN","CSX","CLF","USB","MO","CPNG","CS","KEY","QCOM","UAA","ERIC","HPQ","BEKE","NTRA","MAT","XP","DVN","ONON","GFI","BP","MRK","GPS","FTCH","MRO","NEE","JBLU","MQ","AMCR","MDT","PDD","NFLX","CIG","CVX","JPM","ON","CHPT","STNE","LI","AA","QS","LOW","X","TXN","COP","ABBV","DAL","BBWI","KDP","STLA","TFC","PAYO","JWN","TCOM","DBX","CVS","FTI","JD","BRFS","FIS","RUN","EPD","PATH","CRM","TOST","GILD","SCHW","OSH","NYCB","ING","V","PR","RF","RCM","ORCL","MCHP","NKE","PANW","HAL","AEO","WOLF","BAX","AVTR","BKR","KHC","AR","ROKU","IVZ","ALLY","AG","RKLB","LAZR","HL","JNJ","NLY","CTSH","TTD","VICI","NWL","CX","AAP","SBUX","SO","VRT","GSK","WDC","EBAY","BSX","HD","EW","NEM","APA","SYF","TCEHY","DASH","PG"};
+    final String tickers[] = {"CCL","AMZN","AMD","NVDA","AAPL","TSLA","BBD","ITUB","GRAB","DLO","F","NIO","SOFI","XPEV","ABEV","TGT","DNA","INTC","PBR","META","T","NU","SNAP","LU","VALE","AMC","PLTR","AAL","BABA","UBER","WBD","PINS","SWN","CSCO","GOOGL","VTRS","GOOG","TLRY","MSFT","COIN","TSM","BAC","ZI","LCID","MU","M","NOK","U","LUMN","TME","CMCSA","PARA","C","AFRM","SHOP","RIG","GSAT","SIRI","LYFT","RLX","DKNG","APE","PBR-A","NCLH","VZ","PLUG","IQ","HPE","WFC","KGC","KMI","ASX","UMC","PTON","ET","BILI","XOM","VOD","TEVA","SLB","AGNC","HOOD","GGB","RBLX","OXY","AUY","FCX","CTRA","AQN","AMAT","MRVL","PFE","GM","BTG","IBN","TJX","SQ","MPW","PCG","GOLD","DIS","SE","WMT","HBI","HBAN","KO","YMM","ZIM","CPG","ELAN","PYPL","BMY","RIVN","CSX","CLF","USB","MO","CPNG","CS","KEY","QCOM","UAA","ERIC","HPQ","BEKE","NTRA","MAT","XP","DVN","ONON","GFI","BP","MRK","GPS","FTCH","MRO","NEE","JBLU","MQ","AMCR","MDT","PDD","NFLX","CIG","CVX","JPM","ON","CHPT","STNE","LI","AA","QS","LOW","X","TXN","COP","ABBV","DAL","BBWI","KDP","STLA","TFC","PAYO","JWN","TCOM","DBX","CVS","FTI","JD","BRFS","FIS","RUN","EPD","PATH","CRM","TOST","GILD","SCHW","OSH","NYCB","ING","V","PR","RF","RCM","ORCL","MCHP","NKE","PANW","HAL","AEO","WOLF","BAX","AVTR","BKR","KHC","AR","ROKU","IVZ","ALLY","AG","RKLB","LAZR","HL","JNJ","NLY","CTSH","TTD","VICI","NWL","CX","AAP","SBUX","SO","VRT","GSK","WDC","EBAY","BSX","HD","EW","NEM","APA","SYF","TCEHY","DASH","PG"};
     final private HashSet<String> tickers_set = new HashSet<>(Arrays.asList(tickers));
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent e) {
@@ -36,35 +36,32 @@ public class Commands extends ListenerAdapter {
 
             if(opt.equals("!run")){
                 File currentTrack = new File("./" + User + "/track.txt");
-                String python = "C:/Python310/python.exe";
-                // String jordan = "jordan.py";
-                String jordan = "test.py";
+                String python = "python";
+                String jordan = "jordan.py";
+                // String jordan = "test.py";
                 String plot = "plot.py";
                 Timer timer = new Timer();
                 timer.scheduleAtFixedRate(new TimerTask(){
                     @Override
                     public void run() {
-                        String s1[] = null;
+                        String tickers = null;
                         try {
                             if(currentTrack.exists()){
                                 Scanner scan = new Scanner(currentTrack);
-                                if(scan.hasNext()) s1 = scan.nextLine().split("[,]");
+                                if(scan.hasNext()) tickers = scan.nextLine();
                                 scan.close();
                             }
-                            if(s1 == null){
+                            if(tickers == null){
                                 e.getChannel().sendMessage("Please add a valid stock ticker to track! ex. amzn, tsla").queue();
                                 return;
                             }
-                            for(String s : s1){
-                                ProcessBuilder pb = new ProcessBuilder(python, jordan, User, s);
-                                pb.redirectErrorStream(true);
-                                // pb.inheritIO();
-                                Process p = pb.start();
-                            }
-                            ProcessBuilder pb = new ProcessBuilder(python, plot, User);
-                            pb.redirectErrorStream(true);
+                            ProcessBuilder pb = new ProcessBuilder(python, jordan, User, tickers);
+                            // pb.redirectErrorStream(true);
                             // pb.inheritIO();
                             Process p = pb.start();
+                            pb = new ProcessBuilder(python, plot, User);
+                            // pb.redirectErrorStream(true);
+                            p = pb.start();
                         } catch (IOException ex) {ex.printStackTrace();}
                     }   
                 }, 0, 60*1000);
@@ -125,11 +122,7 @@ public class Commands extends ListenerAdapter {
                 }
             } 
 
-            else if (opt.equals("!hello")) { //TODO Fun easter egg?
-                e.getChannel().sendMessage("Hello world!").queue();
-            } 
-
-            else if (opt.equals("!graph")) { //TODO Implement real time graph retrieval
+            else if (opt.equals("!graph")) {
                 e.getChannel().sendMessage("Loading graph of profits... ").queue();
                 File fig = new File("./" + User + "/fig.png");
                 if(fig.exists()) e.getChannel().sendFile(fig).queue();
@@ -137,14 +130,30 @@ public class Commands extends ListenerAdapter {
             } 
 
             else if (opt.equals("!log")) {
-                String num = m.substring(m.indexOf('!') + 4);
-                num = num.substring(0, num.indexOf("("));
-                System.out.println(num);
-                e.getChannel().sendMessage("Displaying the last" + num + " transactions").queue();
+                e.getChannel().sendMessage("Displaying the last transactions").queue();
+                File log = new File("./" + User + "/" + "logs.txt");
+                try {
+                    Scanner scan = new Scanner(log);
+                    while(scan.hasNext()) e.getChannel().sendMessage(scan.nextLine()).queue(); 
+                    scan.close();
+                } catch (FileNotFoundException e1) {
+                    e.getChannel().sendMessage("Not trading. Use !track to add stocks and !run to start trading!").queue();
+                }
+
+            }
+
+            else if(opt.equals("!help")){
+                String message = "!track <ticker> to add stocks to trade\n!stocks to view all tracking stocks\n";
+                message += "!untrack <ticker> to remove a stock from trading\n";
+                message += "!graph to see total assets and performance over time\n";
+                message += "!log to see past transaction details";
+                e.getChannel().sendMessage(message).queue();
             }
 
             else{
                 e.getChannel().sendMessage("Invalid input. Use !help to get a list of comments to call").queue();
+                File egg = new File("./egg.jpg");
+                e.getChannel().sendFile(egg).queue();
             }
         }
     }
