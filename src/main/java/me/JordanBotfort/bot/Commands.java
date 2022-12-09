@@ -57,7 +57,7 @@ public class Commands extends ListenerAdapter {
                             }
                             ProcessBuilder pb = new ProcessBuilder(python, jordan, User, tickers);
                             // pb.redirectErrorStream(true);
-                            // pb.inheritIO();
+                            pb.inheritIO();
                             Process p = pb.start();
                             pb = new ProcessBuilder(python, plot, User);
                             // pb.redirectErrorStream(true);
@@ -134,15 +134,15 @@ public class Commands extends ListenerAdapter {
 
             else if (opt.equals("!log")) {
                 int lines = 0;
-                if (m.split(" ").length > 1) {
-                    lines = Integer.parseInt(m.split(" ")[1]);
-                }
+                if (m.split(" ").length > 1) lines = Integer.parseInt(m.split(" ")[1]);
                 else lines = 5;
                 e.getChannel().sendMessage(String.format("Displaying the last %d transactions", lines)).queue();
                 File log = new File("./" + User + "/" + "logs.txt");
+                String logs = "";
                 try {
                     Scanner scan = new Scanner(log);
-                    while(scan.hasNext() && (lines-- > 0)) e.getChannel().sendMessage(scan.nextLine()).queue(); 
+                    while(scan.hasNext() && (lines-- > 0)) logs += scan.nextLine() + "\n";
+                    e.getChannel().sendMessage(logs).queue(); 
                     scan.close();
                 } catch (FileNotFoundException e1) {
                     e.getChannel().sendMessage("Not trading. Use !track to add stocks and !run to start trading!").queue();
