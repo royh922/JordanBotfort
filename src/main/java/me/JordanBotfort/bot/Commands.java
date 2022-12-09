@@ -104,6 +104,9 @@ public class Commands extends ListenerAdapter {
                         outFile.print(String.join(",", set));
                         outFile.close();
                         scan.close();
+                        Process p = pb.start();
+                        pb = new ProcessBuilder("python", "untrack.py", User, stock);
+
                     } catch (IOException ex) {ex.printStackTrace();}
                 }
                 else e.getChannel().sendMessage("Please add a ticker to be untracked! ex. amzn, tsla").queue();
