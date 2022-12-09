@@ -104,8 +104,8 @@ public class Commands extends ListenerAdapter {
                         outFile.print(String.join(",", set));
                         outFile.close();
                         scan.close();
+                        ProcessBuilder pb = new ProcessBuilder("python", "untrack.py", User, stock);
                         Process p = pb.start();
-                        pb = new ProcessBuilder("python", "untrack.py", User, stock);
 
                     } catch (IOException ex) {ex.printStackTrace();}
                 }
@@ -153,7 +153,8 @@ public class Commands extends ListenerAdapter {
                 String message = "!track <ticker> to add stocks to trade\n!stocks to view all tracking stocks\n";
                 message += "!untrack <ticker> to remove a stock from trading\n";
                 message += "!graph to see total assets and performance over time\n";
-                message += "!log to see past transaction details";
+                message += "!log to see past transaction details\n";
+                message += "!run to start trading real-time (user specified stocks)";
                 e.getChannel().sendMessage(message).queue();
             }
 
